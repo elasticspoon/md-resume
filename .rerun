@@ -1,0 +1,4 @@
+--pattern *.{css,md}
+--name resume-generator
+--
+ruby resume.rb --no-pdf
