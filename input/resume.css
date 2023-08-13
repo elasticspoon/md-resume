@@ -77,9 +77,11 @@ h1 + ul > li:last-child:after {
 h1 + ul + p {
   margin: 1em 0;
 }
+img {
+  height: 20px;
+}
 .img_link {
   display: flex;
-  height: 20px;
 }
 #skills {
   margin-bottom: 8px;

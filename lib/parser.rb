@@ -1,16 +1,19 @@
 require "optparse"
+require "pathname"
 
 class Parser
   class ScriptOptions
-    attr_accessor :chrome_path, :html, :pdf, :css_path, :output_name, :verbose
+    attr_accessor :chrome_path, :html, :pdf, :css_path, :output_name, :verbose, :input_path, :live_server
 
     def initialize
       self.chrome_path = nil
       self.html = true
       self.pdf = true
-      self.css_path = "resume.css"
+      self.input_path = "input/resume.md"
+      self.css_path = "input/resume.css"
       self.output_name = "resume"
       self.verbose = false
+      self.live_server = false
     end
 
     def define_options(parser)
@@ -22,8 +25,10 @@ class Parser
       boolean_pdf_option(parser)
       boolean_html_option(parser)
       boolean_verbosity_option(parser)
+      boolean_live_server_option(parser)
       specify_chrome_path_option(parser)
       specify_css_path_option(parser)
+      specify_input_path_option(parser)
       specify_output_option(parser)
 
       parser.separator ""
@@ -39,14 +44,24 @@ class Parser
     def specify_chrome_path_option(parser)
       # Specifies an optional option argument
       parser.on("--chrome_path=PATH", "Path to Chrome executable") do |path|
-        self.chrome_path = path
+        full_path = Pathname.new(path).expand_path
+        self.chrome_path = full_path
+      end
+    end
+
+    def specify_input_path_option(parser)
+      # Specifies an optional option argument
+      parser.on("-input=PATH", "--input_path=PATH", "Path to Markdown input") do |path|
+        full_path = Pathname.new(path).expand_path
+        self.input_path = full_path
       end
     end
 
     def specify_css_path_option(parser)
       # Specifies an optional option argument
       parser.on("-css=PATH", "--css_path=PATH", "Path to CSS stylesheet") do |path|
-        self.css_path = "#{path}.css"
+        full_path = Pathname.new(path).expand_path
+        self.css_path = full_path
       end
     end
 
@@ -63,16 +78,23 @@ class Parser
       end
     end
 
+    def boolean_live_server_option(parser)
+      # Boolean switch.
+      parser.on("--live_server", "Start live developement server on port 8000") do |v|
+        self.live_server = v
+      end
+    end
+
     def boolean_pdf_option(parser)
       # Boolean switch.
-      parser.on("--no-pdf", "Do not write pdf output") do |v|
+      parser.on("--no_pdf", "Do not write pdf output") do |v|
         self.pdf = v
       end
     end
 
     def boolean_html_option(parser)
       # Boolean switch.
-      parser.on("--no-html", "Do not write html output") do |v|
+      parser.on("--no_html", "Do not write html output") do |v|
         self.html = v
       end
     end
