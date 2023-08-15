@@ -9,5 +9,3 @@ gem "guard-livereload"
 gem "guard-shell"
 gem "guard-process"
 gem "foreman"
-gem "standardrb"
-
