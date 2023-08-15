@@ -3,29 +3,34 @@ require "pathname"
 
 class Parser
   class ScriptOptions
-    attr_accessor :chrome_path, :html, :pdf, :css_path, :output_name, :verbose, :input_path, :live_server
+    attr_accessor :chrome_path, :html, :pdf, :css_path, :output_name, :verbose, :input_path, :dev_server
 
     def initialize
       self.chrome_path = nil
       self.html = true
-      self.pdf = false
+      self.pdf = true
       self.input_path = "input/resume.md"
       self.css_path = "input/resume.css"
       self.output_name = "resume"
       self.verbose = false
-      self.live_server = false
+      self.dev_server = false
     end
 
     def define_options(parser)
-      parser.banner = "Usage: resume.rb [options]"
+      parser.banner = "Usage: resume.rb command [options...]"
+      parser.separator ""
+      # TODO: fill this in
+      # maybe base it on jekyll's help output?
+      parser.separator "Commands:"
+      parser.separator ""
       parser.separator ""
       parser.separator "Specific options:"
 
       # add additional options
       boolean_pdf_option(parser)
       boolean_html_option(parser)
+      boolean_dev_server_option(parser)
       boolean_verbosity_option(parser)
-      boolean_live_server_option(parser)
       specify_chrome_path_option(parser)
       specify_css_path_option(parser)
       specify_input_path_option(parser)
@@ -66,7 +71,7 @@ class Parser
 
     def specify_output_option(parser)
       # Specifies an optional option argument
-      parser.on("-o NAME", "--output=NAME", "Name of output file Ex: --output=resume will output resume.html and resume.pdf") do |name|
+      parser.on("-o NAME", "--output=NAME", "Name of output file", "\tEx: --output=resume will output resume.html and resume.pdf") do |name|
         self.output_name = name
       end
     end
@@ -77,16 +82,17 @@ class Parser
       end
     end
 
-    def boolean_live_server_option(parser)
+    def boolean_dev_server_option(parser)
       # Boolean switch.
-      parser.on("--live-server", "Start live developement server on port 8000") do |v|
-        self.live_server = v
+      parser.on("--dev-server", "Start a live dev-server using foreman", "This rebuild your html output and use livereload to refresh your browser",
+        "You will need the livereload browser extension for the reloading to work") do |v|
+        self.dev_server = v
       end
     end
 
     def boolean_pdf_option(parser)
       # Boolean switch.
-      parser.on("--pdf", "Write pdf output") do |v|
+      parser.on("--no-pdf", "Do not write pdf output") do |v|
         self.pdf = v
       end
     end

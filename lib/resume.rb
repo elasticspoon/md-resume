@@ -39,6 +39,17 @@ class ResumeGenerator
     @opts.chrome_path = guess_chrome_path if @opts.pdf && @opts.chrome_path.nil?
   end
 
+  def write
+    write_html
+    write_pdf
+  rescue Errno::ENOENT
+    # create a directory call output if it doesnt exist
+    Dir.mkdir "output"
+    retry
+  end
+
+  private
+
   def chrome_guesses_linux
     LINUX_CHROME_DIRS.product(LINUX_CHROME_EXECUTABLES).map do |dir, exe|
       "#{dir}/#{exe}"
@@ -59,15 +70,6 @@ class ResumeGenerator
       # XP
       "C:/Documents and Settings/UserName/Local Settings/Application Data/Google/Chrome"
     ]
-  end
-
-  def to_html
-    markdown = File.read(opts.input_path)
-    @html ||= make_html(markdown, css_file: opts.css_path)
-  end
-
-  def to_pdf
-    make_pdf(to_html)
   end
 
   def guess_chrome_path
@@ -91,7 +93,14 @@ class ResumeGenerator
            Please set --chrome_path= manually."
   end
 
-  private
+  def to_html
+    markdown = File.read(opts.input_path)
+    @html ||= make_html(markdown, css_file: opts.css_path)
+  end
+
+  def to_pdf
+    make_pdf(to_html)
+  end
 
   def make_pdf(html)
     chrome = opts.chrome_path
@@ -167,5 +176,13 @@ class ResumeGenerator
       css = ""
     end
     preamable(title, css) + html + POSTAMBLE
+  end
+
+  def write_html
+    File.write("output/#{opts.output_name}.html", to_html) if opts.html
+  end
+
+  def write_pdf
+    to_pdf if opts.pdf
   end
 end
