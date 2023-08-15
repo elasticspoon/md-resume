@@ -9,7 +9,7 @@ end
 #   watch('Gemfile.lock')
 # end
 
-guard 'process', :name => 'Rebuild Dev Site', :command => 'bundle exec ruby resume.rb --no-pdf', :stop_signal => "KILL"  do
+guard 'process', :name => 'Rebuild Dev Site', :command => 'bundle exec ruby resume.rb', :stop_signal => "KILL"  do
   watch(%r{input/.+\.md})
   watch(%r{input/.+\.css})
 end

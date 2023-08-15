@@ -1,10 +1,8 @@
 require "kramdown"
-require 'base64'
+require "base64"
 require "open3"
 require "fileutils"
 require "pathname"
-require_relative "parser"
-require_relative "local-server"
 
 class ResumeGenerator
   attr_reader :opts
@@ -31,7 +29,7 @@ class ResumeGenerator
     "/sbin",
     "/bin",
     "/opt/google/chrome",
-    "/etc/profiles/per-user/bandito/bin"
+    "/etc/profiles/per-user/#{ENV["USER"]}/bin" # NixOS
   ].freeze
 
   LINUX_CHROME_EXECUTABLES = %w[google-chrome chrome chromium chromium-browser].freeze
@@ -162,7 +160,7 @@ class ResumeGenerator
     title = title(markdown)
     html = Kramdown::Document.new(markdown).to_html
     begin
-      css = File.read("#{css_file}")
+      css = File.read(css_file.to_s)
     rescue Errno::ENOENT
       warn "Cannot find CSS file #{css_file}"
       warn "Output will not be styled"
@@ -170,19 +168,4 @@ class ResumeGenerator
     end
     preamable(title, css) + html + POSTAMBLE
   end
-end
-
-parser = Parser.new
-opts = parser.parse(ARGV)
-resume = ResumeGenerator.new(opts)
-server = Server.new(opts)
-
-begin
-  File.write("output/#{opts.output_name}.html", resume.to_html) if opts.html
-  resume.to_pdf if opts.pdf
-  server.start if opts.live_server
-rescue Errno::ENOENT => e
-# create a directory call output if it doesnt exist
-  Dir.mkdir "output"
-  retry
 end

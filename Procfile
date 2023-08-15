@@ -1,3 +1,3 @@
-live-server: bundle exec ruby resume.rb --live_server
+live-server: bundle exec ruby resume.rb --live-server
 guard-watch: bundle exec guard
 
